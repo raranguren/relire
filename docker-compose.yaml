@@ -1,8 +1,8 @@
 version: '3.4'
 
 volumes:
-  relire-mongodb:
-  relire-mysql:
+  mongodb:
+  mysql:
 
 networks:
   web:
@@ -12,7 +12,7 @@ services:
 
   # APPLICATION LAYER
 
-  app:
+  8080-app:
     build:
       context: .
       dockerfile: Dockerfile
@@ -44,7 +44,7 @@ services:
     volumes:
       - relire-mysql
 
-  adminer:
+  8084-admin-mysql:
     depends_on:
       - db
     image: adminer
