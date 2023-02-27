@@ -1,0 +1,86 @@
+version: '3.4'
+
+volumes:
+  relire-mongodb:
+  relire-mysql:
+
+networks:
+  web:
+  data:
+
+services:
+
+  # APPLICATION LAYER
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: app
+    container_name: app
+    ports:
+      - "8080:8080"
+    expose:
+      - 8080
+    networks:
+      - web
+      - data
+
+  # DATA LAYER
+
+  db:
+    image: mysql:5.7
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'relire'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'rootpassword'
+    ports:
+      - "3308:3306"
+    networks:
+      - data
+    volumes:
+      - relire-mysql
+
+  adminer:
+    depends_on:
+      - db
+    image: adminer
+    container_name: adminer
+    restart: always
+    ports:
+      - "127.0.0.1:8084:8080" #ADMIN tool exposed only in localhost
+    networks:
+      - data
+
+  mongo:
+    image: mongo
+    restart: always
+    volumes:
+      - relire-mongodb
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    networks:
+      - data
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+      MONGO_INITDB_DATABASE: patienthistory
+
+  8085-admin-mongo:
+    image: mongo-express
+    depends_on:
+      - mongo
+    container_name: mongo-express
+    restart: always
+    ports:
+      - "127.0.0.1:8085:8081" #ADMIN tool exposed only in localhost
+    networks:
+      - data
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: rootpassword
+      ME_CONFIG_MONGODB_SERVER: mongo
