@@ -16,8 +16,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: app
-    container_name: app
+      target: backend
+    container_name: backend
     ports:
       - "8080:8080"
     expose:
